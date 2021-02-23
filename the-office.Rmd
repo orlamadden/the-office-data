@@ -1,0 +1,30 @@
+---
+title: "Analyzing The Office data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# import libraries
+library(tidyverse)
+library(schrute)
+
+# import office ratings from imdb
+office_ratings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-17/office_ratings.csv')
+
+# the office transcripts from the schrute package
+office_transcripts <- as_tibble(theoffice)
+```
+```{r}
+
+office_ratings %>%
+  group_by(season) %>%
+  summarize(avg_rating = mean(imdb_rating)) %>%
+  ggplot(aes(season, avg_rating)) +
+  geom_line()
+
+```
