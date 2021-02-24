@@ -18,7 +18,11 @@ theme_set(theme_light())
 office_ratings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-17/office_ratings.csv')
 
 # the office transcripts from the schrute package
-office_transcripts <- as_tibble(theoffice)
+office_transcripts <- as_tibble(theoffice) %>%
+  mutate(season = as.integer(season),
+         episode = as.integer(episode)) %>%
+  # removes characters that have the quote
+  mutate(character = str_remove_all(character, '"'))
 ```
 ```{r}
 # ratings grouped by season
@@ -55,10 +59,33 @@ office_ratings %>%
   geom_smooth(group = 1) +
   geom_point(aes(color = factor(season), size = total_votes)) +
   geom_text(aes(label = title), check_overlap = TRUE, hjust = 1) +
+  expand_limits(x = -10) +
   theme(panel.grid.major.x = element_blank(),
         legend.position = 'none') +
   labs(x = "Episode number",
        y = "IMDB Rating",
        title = "Popularity of The Office episodes over time",
        subtitle = "Colour represents season, size represents # of ratings")
+```
+### The Office Transcripts
+
+```{r}
+library(tidytext)
+
+transcript_words <- office_transcripts %>%
+  select(-text_w_direction) %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!word %in% blacklist_words)
+
+blacklist_words <- c("yeah", "hey", "uh", "um", "ah", "gonna")
+
+transcript_words %>%
+  count(character, word)
+```
+
+```{r}
+office_transcripts %>%
+  count(character, sort = TRUE) %>%
+  View()
 ```
