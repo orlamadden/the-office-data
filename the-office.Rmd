@@ -20,11 +20,24 @@ office_ratings <- readr::read_csv('https://raw.githubusercontent.com/rfordatasci
 office_transcripts <- as_tibble(theoffice)
 ```
 ```{r}
-
+# ratings grouped by season
 office_ratings %>%
   group_by(season) %>%
   summarize(avg_rating = mean(imdb_rating)) %>%
   ggplot(aes(season, avg_rating)) +
-  geom_line()
+  geom_line() +
+  scale_x_continuous(breaks = 1:9)
 
+```
+
+```{r}
+
+# ratings of each episode over 9 seasons
+office_ratings %>%
+  mutate(title = fct_inorder(title)) %>%
+  ggplot(aes(title, imdb_rating)) + 
+  geom_line(group = 1) +
+  geom_point(aes(color = factor(season))) +
+  geom_text(aes(label = title), check_overlap = TRUE)
+  theme(axis.text.x = element_blank())
 ```
