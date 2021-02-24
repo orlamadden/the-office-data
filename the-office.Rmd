@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # import libraries
 library(tidyverse)
 library(schrute)
+theme_set(theme_light())
 
 # import office ratings from imdb
 office_ratings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-17/office_ratings.csv')
@@ -37,7 +38,27 @@ office_ratings %>%
   mutate(title = fct_inorder(title)) %>%
   ggplot(aes(title, imdb_rating)) + 
   geom_line(group = 1) +
-  geom_point(aes(color = factor(season))) +
-  geom_text(aes(label = title), check_overlap = TRUE)
-  theme(axis.text.x = element_blank())
+  geom_point(aes(color = factor(season), size = total_votes)) +
+  geom_text(aes(label = title), check_overlap = TRUE, hjust = 1)
+  theme(axis.text.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = 'none')
+```
+
+```{r}
+# popularity of the office over time
+office_ratings %>%
+  mutate(title = fct_inorder(title),
+         episode_number = row_number()) %>%
+  ggplot(aes(episode_number, imdb_rating)) + 
+  geom_line(group = 1) +
+  geom_smooth(group = 1) +
+  geom_point(aes(color = factor(season), size = total_votes)) +
+  geom_text(aes(label = title), check_overlap = TRUE, hjust = 1) +
+  theme(panel.grid.major.x = element_blank(),
+        legend.position = 'none') +
+  labs(x = "Episode number",
+       y = "IMDB Rating",
+       title = "Popularity of The Office episodes over time",
+       subtitle = "Colour represents season, size represents # of ratings")
 ```
