@@ -92,7 +92,7 @@ transcript_words <- office_transcripts %>%
 # transcript_words %>%
 #  count(character, sort = TRUE)
 
-transcript_words %>%
+character_tf_idf <- transcript_words %>%
   add_count(word) %>%
   count(word, character) %>%
   bind_tf_idf(word, character, n) %>%
@@ -100,6 +100,14 @@ transcript_words %>%
 
 ```
 
-```{r}
+### Common words, common characters
 
+```{r}
+character_tf_idf
+  
+  
+```
+```{r}
+office_transcripts %>%
+  count(character, sort = TRUE)
 ```
