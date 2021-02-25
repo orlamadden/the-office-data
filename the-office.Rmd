@@ -72,20 +72,34 @@ office_ratings %>%
 ```{r}
 library(tidytext)
 
+blacklist_words <- c("yeah", "hey", "uh", "um", "ah", "gonna")
+blacklist_characters <- c("Everyone", "All", "Both", "Guy", "Girl", "Group")
+
+# group words by character
 transcript_words <- office_transcripts %>%
+  group_by(character) %>%
+  # filter number of lines over 30, episodes greater than 2
+  filter(n() >= 100, n_distinct(episode_name) > 2) %>%
+  # remove text_w_direction
   select(-text_w_direction) %>%
   unnest_tokens(word, text) %>%
   anti_join(stop_words, by = "word") %>%
-  filter(!word %in% blacklist_words)
+  #filter out words not in blacklist_words
+  filter(!word %in% blacklist_words,
+         !character %in% blacklist_characters)
 
-blacklist_words <- c("yeah", "hey", "uh", "um", "ah", "gonna")
+# counts all words per character, sorted high to low
+# transcript_words %>%
+#  count(character, sort = TRUE)
 
 transcript_words %>%
-  count(character, word)
+  add_count(word) %>%
+  count(word, character) %>%
+  bind_tf_idf(word, character, n) %>%
+  arrange(desc(tf_idf))
+
 ```
 
 ```{r}
-office_transcripts %>%
-  count(character, sort = TRUE) %>%
-  View()
+
 ```
