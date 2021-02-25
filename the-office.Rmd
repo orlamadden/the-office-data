@@ -103,8 +103,13 @@ character_tf_idf <- transcript_words %>%
 ### Common words, common characters
 
 ```{r}
-character_tf_idf
-  
+character_tf_idf %>%
+  filter(character == "Dwight") %>%
+  mutate(word = fct_reorder(word, tf_idf)) %>%
+  head(20) %>%
+  ggplot(aes(word, tf_idf)) +
+  geom_col() + 
+  coord_flip()
   
 ```
 ```{r}
