@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r import_libraries, include=FALSE}
 
 # import libraries
 library(tidyverse)
@@ -24,7 +24,8 @@ office_transcripts <- as_tibble(theoffice) %>%
   # removes characters that have the quote
   mutate(character = str_remove_all(character, '"'))
 ```
-```{r}
+### Ratings grouped by season
+```{r echo = FALSE, warning = FALSE, fig.cap="Ratings grouped by season"}
 # ratings grouped by season
 office_ratings %>%
   group_by(season) %>%
@@ -35,7 +36,8 @@ office_ratings %>%
 
 ```
 
-```{r}
+### Ratings of each episode over 9 seasons
+```{r echo = FALSE, warning = FALSE, fig.cap="Ratings of each episode over 9 seasons"}
 
 # ratings of each episode over 9 seasons
 office_ratings %>%
@@ -138,4 +140,18 @@ character_tf_idf %>%
 office_transcripts %>%
   count(character, sort = TRUE)
 
+```
+
+### Machine Learning
+
+What affects the popularity of an episode?
+
+- Season/time
+- Director
+- Writer
+- Lines per character
+
+```{r}
+office_transcripts %>%
+  count(episode_name, character)
 ```
