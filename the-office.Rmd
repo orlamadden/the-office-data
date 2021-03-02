@@ -89,8 +89,11 @@ transcript_words <- office_transcripts %>%
          !character %in% blacklist_characters)
 
 # counts all words per character, sorted high to low
-# transcript_words %>%
-#  count(character, sort = TRUE)
+ 
+michael <- transcript_words %>%
+  count(character = "Michael", sort = TRUE)
+
+michael_word_count <- michael$n
 
 character_tf_idf <- transcript_words %>%
   add_count(word) %>%
@@ -98,7 +101,9 @@ character_tf_idf <- transcript_words %>%
   bind_tf_idf(word, character, n) %>%
   arrange(desc(tf_idf))
 
+
 ```
+Michael said `r michael_word_count` words throughout the whole series.
 
 ### Common words, common characters
 
@@ -109,10 +114,28 @@ character_tf_idf %>%
   head(20) %>%
   ggplot(aes(word, tf_idf)) +
   geom_col() + 
-  coord_flip()
+  coord_flip() +
+  labs(x = "words",
+       y = "TF-IDF of Dwight's words",
+       title = "Popular words of Dwight Schrute")
+
+character_tf_idf %>%
+  filter(character %in% c("Dwight", "Jim", "Michael", "Darryl", "Kelly", "Ryan")) %>%
+  group_by(character) %>%
+  top_n(10, tf_idf) %>%
+  ungroup() %>%
+  mutate(word = reorder_within(word, tf_idf, character)) %>%
+  ggplot(aes(word, tf_idf)) +
+  geom_col() + 
+  coord_flip() + 
+  scale_x_reordered() +
+  facet_wrap(~ character, scales = "free_y") +
+  labs(x = "",
+       y = "TF-IDF of character-word pairs")
   
 ```
 ```{r}
 office_transcripts %>%
   count(character, sort = TRUE)
+
 ```
