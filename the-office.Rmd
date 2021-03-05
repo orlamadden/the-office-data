@@ -15,14 +15,15 @@ library(schrute)
 theme_set(theme_light())
 
 # import office ratings from imdb
-office_ratings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-17/office_ratings.csv')
+office_ratings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-17/office_ratings.csv') %>%
+  mutate(name = str_to_lower(str_remove_all(title, "\\.| \\(Part.*|\\: Part.*")))
 
 # the office transcripts from the schrute package
 office_transcripts <- as_tibble(theoffice) %>%
   mutate(season = as.integer(season),
          episode = as.integer(episode)) %>%
-  # removes characters that have the quote
-  mutate(character = str_remove_all(character, '"'))
+  mutate(character = str_remove_all(character, '"')) %>%
+  mutate(name = str_to_lower(str_remove_all(episode_name, "\\.| \\(Part.*")))
 ```
 ### Ratings grouped by season
 ```{r echo = FALSE, warning = FALSE, fig.cap="Ratings grouped by season"}
@@ -152,6 +153,18 @@ What affects the popularity of an episode?
 - Lines per character
 
 ```{r}
-office_transcripts %>%
-  count(episode_name, character)
+ratings_summarized <- office_ratings %>%
+  group_by(name) %>%
+  summarize(imdb_rating = mean(imdb_rating))
+
+character_lines_ratings <- office_transcripts %>%
+  count(character, name) %>%
+  group_by(character) %>%
+  filter(sum(n) > 100) %>%
+  inner_join(ratings_summarized, by ="name")
+
+character_lines_ratings %>%
+  summarize(avg_rating = mean(imdb_rating),
+            nb_episodes = n()) %>%
+  arrange(desc(avg_rating))
 ```
