@@ -139,7 +139,8 @@ character_tf_idf %>%
 ```
 ```{r}
 office_transcripts %>%
-  count(character, sort = TRUE)
+  count(character, sort = TRUE) %>%
+  filter(character == "Dwight")
 
 ```
 
